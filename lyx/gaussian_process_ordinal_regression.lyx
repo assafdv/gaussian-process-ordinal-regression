@@ -1,0 +1,2363 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass scrartcl
+\begin_preamble
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Bayesian Ordinal Regression 
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Ordinal regression is a type of regression analysis used for predicting
+ an ordinal variable, i.e., a variable whose values exists on an arbitrary
+ scale where only the relative ordering between different values is significant.
+ In 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-1"
+literal "false"
+
+\end_inset
+
+, Gaussian Process model was presented for the ordinal regression models.
+ The following sections describes this model.
+\end_layout
+
+\begin_layout Section
+Latent variable model for ordinal regression 
+\end_layout
+
+\begin_layout Standard
+Assume we have a training set 
+\begin_inset Formula $\mathcal{{D}}$
+\end_inset
+
+ of 
+\begin_inset Formula $n$
+\end_inset
+
+ (IID) observations, 
+\begin_inset Formula $\mathcal{{D}}=\{(\boldsymbol{x}_{i},y_{i})|i=1,..,n\}$
+\end_inset
+
+, where 
+\begin_inset Formula $\boldsymbol{x}\in\mathbb{{R}}^{d}$
+\end_inset
+
+ denotes an input vector (covariates) of dimension 
+\begin_inset Formula $\mathcal{{D}}$
+\end_inset
+
+ and 
+\begin_inset Formula $y$
+\end_inset
+
+ denotes an ordinal response variable on a scale 
+\begin_inset Formula $0,..,K$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $Z$
+\end_inset
+
+ be a latent variable that underlies the generation of the ordinal responses
+\begin_inset Formula 
+\begin{equation}
+Z=f(\boldsymbol{x})+\epsilon
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $f(\boldsymbol{x})$
+\end_inset
+
+ is a zero-mean Gaussian process with covariance function 
+\begin_inset Formula $\mathcal{K}(\boldsymbol{x},\boldsymbol{x}')$
+\end_inset
+
+ and 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ is zero mean Gaussian noise with variance 
+\begin_inset Formula $\sigma_{\epsilon}^{2}$
+\end_inset
+
+ .
+ I.e., 
+\begin_inset Formula 
+\begin{equation}
+p(Z|f(\boldsymbol{x}),\sigma_{\epsilon}^{2})=\mathcal{{N}}(f(\boldsymbol{x}),\sigma_{\epsilon}^{2}).
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The response variable 
+\begin_inset Formula $y$
+\end_inset
+
+ results from an 
+\begin_inset Quotes eld
+\end_inset
+
+incomplete measurements
+\begin_inset Quotes erd
+\end_inset
+
+ of 
+\begin_inset Formula $Z$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+y=\begin{cases}
+1, & Z\leq\eta_{1},\\
+2, & \eta_{1}\leq Z\leq\eta_{2}\\
+\vdots\\
+K & \eta_{K-1}\leq Z.
+\end{cases}
+\end{equation}
+
+\end_inset
+
+Defining 
+\begin_inset Formula $\eta_{0}=-\infty$
+\end_inset
+
+ and 
+\begin_inset Formula $\eta_{K}=\infty$
+\end_inset
+
+, the above can be summarized as 
+\begin_inset Formula $y=k$
+\end_inset
+
+ if (and only if) 
+\begin_inset Formula $\eta_{k-1}\leq Z\leq\eta_{k}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Denote with 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ the parameters vector including the thresholds, 
+\begin_inset Formula $\{\eta_{1},...,\eta_{K-1}\}$
+\end_inset
+
+, the noise level 
+\begin_inset Formula $\sigma_{\epsilon}^{2}$
+\end_inset
+
+ and the covariance function parameters.
+ The probability that 
+\begin_inset Formula $y$
+\end_inset
+
+ equals 
+\begin_inset Formula $k$
+\end_inset
+
+ 
+\begin_inset Formula 
+\begin{align}
+P_{r}(y=k|f(\boldsymbol{x}),\boldsymbol{\theta}) & =P_{r}(\eta_{k-1}\leq Z\leq\eta_{k}|f(\boldsymbol{x}),\sigma_{\epsilon}^{2})=\nonumber \\
+ & =\int_{\eta_{k-1}}^{\eta_{k}}p(z|f(\boldsymbol{x}),\sigma_{\epsilon}^{2})dz=\Phi\left(\frac{\eta_{k}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)-\Phi\left(\frac{\eta_{k-1}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)
+\end{align}
+
+\end_inset
+
+where 
+\begin_inset Formula $\Phi$
+\end_inset
+
+ is the cumulative distribution function of the Gaussian distribution.
+ For 
+\begin_inset Formula $k=1$
+\end_inset
+
+ and 
+\begin_inset Formula $k=K$
+\end_inset
+
+ we obtain, 
+\begin_inset Formula 
+\begin{align*}
+P_{r}(y=0|f(\boldsymbol{x}),\boldsymbol{\theta}) & =\Phi\left(\frac{\eta_{k}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)\\
+P_{r}(y=K|f(\boldsymbol{x}),\boldsymbol{\theta}) & =1-\Phi\left(\frac{\eta_{k-1}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)
+\end{align*}
+
+\end_inset
+
+The conditional distribution of 
+\begin_inset Formula $y$
+\end_inset
+
+ is now given by
+\begin_inset Formula 
+\begin{align*}
+p(y|f(\boldsymbol{x}),\boldsymbol{\theta}) & =\prod_{i=1}^{K}P_{r}(y=k|f(\boldsymbol{x}),\boldsymbol{\theta})^{[y=k]}=\\
+ & =\prod_{k=1}^{K}\left[\Phi\left(\frac{\eta_{k}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)-\Phi\left(\frac{\eta_{k-1}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)\right]^{[y=k]}=\\
+ & =\Phi\left(\frac{\eta_{y}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)-\Phi\left(\frac{\eta_{y-1}-f(\boldsymbol{x})}{\sigma_{\epsilon}}\right)
+\end{align*}
+
+\end_inset
+
+using the Iverson bracket 
+\begin_inset Formula $[y=k]$
+\end_inset
+
+.
+ Then, the likelihood of the ordinal model can now be stated as
+\begin_inset Formula 
+\begin{equation}
+p(\mathcal{{D}}|\boldsymbol{f},\boldsymbol{\theta})=\prod_{i=1}^{n}p(y_{i}|f(\boldsymbol{x}_{i}),\boldsymbol{\theta}),\label{eq:likelihood}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\boldsymbol{f}=[f(\boldsymbol{x}_{1}),f(\boldsymbol{x}_{2}),...,f(\boldsymbol{x}_{n})]^{T}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Full Bayesian treatment
+\end_layout
+
+\begin_layout Standard
+In the full Bayesian treatment, we must assign priors for both to 
+\begin_inset Formula $\boldsymbol{f}$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+.
+ The posterior probability can then be written as
+\begin_inset Formula 
+\begin{align}
+p(\boldsymbol{f},\boldsymbol{\theta}|\mathcal{{D}}) & =\frac{p(\mathcal{{D}}|\boldsymbol{f},\boldsymbol{\theta})p(\boldsymbol{f},\boldsymbol{\theta})}{p(\mathcal{{D}})}\underset{f,\boldsymbol{\theta}\:iid}{{=}}\nonumber \\
+ & =\frac{p(\mathcal{{D}}|\boldsymbol{f},\boldsymbol{\theta})p(\boldsymbol{f})p(\boldsymbol{\theta})}{p(\mathcal{{D}})}
+\end{align}
+
+\end_inset
+
+where 
+\begin_inset Formula $p(\mathcal{{D}})=\int p(\mathcal{{D}}|\boldsymbol{f},\boldsymbol{\theta})p(\boldsymbol{f})p(\boldsymbol{\theta})d\boldsymbol{f}d\boldsymbol{\theta}$
+\end_inset
+
+.
+ The posterior predictive distribution is given by 
+\begin_inset Formula 
+\begin{equation}
+p(y_{*}|\boldsymbol{x}_{*},\mathcal{{D}})=\int p(y_{*}|f(\boldsymbol{x}_{*}),\boldsymbol{\theta})p(\boldsymbol{f},\boldsymbol{\theta}|\mathcal{{D}})d\boldsymbol{f}d\boldsymbol{\theta}
+\end{equation}
+
+\end_inset
+
+Computing the posterior distribution is analytically intractable and most
+ often Monte Carlo methods are used to obtain approximations.
+ 
+\end_layout
+
+\begin_layout Subsection
+Prior specification 
+\end_layout
+
+\begin_layout Standard
+The prior probability for 
+\begin_inset Formula $\boldsymbol{f}$
+\end_inset
+
+ is a multivariate Gaussian
+\begin_inset Formula 
+\begin{equation}
+p(\boldsymbol{f})=\mathcal{{N}}(\boldsymbol{0},K)\label{eq:GP prior}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $K$
+\end_inset
+
+ is 
+\begin_inset Formula $n\times n$
+\end_inset
+
+ covariance matrix whose 
+\begin_inset Formula $ij$
+\end_inset
+
+-element equals 
+\begin_inset Formula $\mathcal{{K}}(\boldsymbol{x}_{i},\boldsymbol{x}_{j})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+To set priors to the thresholds, 
+\begin_inset Formula $\{\eta_{1},...,\eta_{K-1}\}$
+\end_inset
+
+ that enforce increasing order and positivity we use the following definition
+\begin_inset Formula 
+\begin{equation}
+\eta_{j}=\eta_{1}+\sum_{l=2}^{j}\log\Delta_{l},\quad j=2,..,K-1.
+\end{equation}
+
+\end_inset
+
+Now we can assign normal prior over the parameters 
+\begin_inset Formula $\{\eta_{1},\log\Delta_{2},...,\log\Delta_{K-1}\}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Partial Bayesian treatment
+\end_layout
+
+\begin_layout Standard
+In a full Bayesian treatment the parameters 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ must be integrated over the 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+-space.
+ An alternative solution is to find a point estimate for 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+.
+ This results in a Bayesian framework conditional on the parameters 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+p(\boldsymbol{f}|\mathcal{{D}},\boldsymbol{\theta})=\frac{p(\mathcal{D}|\boldsymbol{f},\boldsymbol{\theta})p(\boldsymbol{f})}{p(\mathcal{{D}}|\boldsymbol{\theta})}.
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A point estimate for 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ can be either computed by maximizing the evidence 
+\begin_inset Formula $p(\mathcal{{D}}|\boldsymbol{\theta})$
+\end_inset
+
+ (ML estimator) or by maximizing the posterior 
+\begin_inset Formula $p(\boldsymbol{\theta}|\mathcal{{D}})$
+\end_inset
+
+ (MAP estimator), where 
+\begin_inset Formula $p(\boldsymbol{\theta}|\mathcal{{D}})\propto p(\mathcal{{D}}|\boldsymbol{\theta})p(\boldsymbol{\theta})$
+\end_inset
+
+.
+ The evidence (which is required for the estimating 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+) is given by a high dimensional integral,
+\begin_inset Formula 
+\begin{equation}
+p(\mathcal{{D}}|\boldsymbol{\theta})=\int p(\mathcal{{D}}|\boldsymbol{f},\boldsymbol{\theta})p(\boldsymbol{f})d\boldsymbol{f},\label{eq:evidence}
+\end{equation}
+
+\end_inset
+
+which is analytically intractable.
+ A popular approach is to approximate the posterior, 
+\begin_inset Formula $p(\boldsymbol{f}|\mathcal{{D}},\boldsymbol{\theta})$
+\end_inset
+
+ as a Gaussian (e.g.
+ using Laplace approximation), and then the evidence can be calculates using
+ explicit formula.
+ The MLE or MAP estimation of 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ can then be obtained using gradient-based optimization methods.
+\end_layout
+
+\begin_layout Subsection
+Laplace Approximation 
+\end_layout
+
+\begin_layout Standard
+In this section, we develop the Laplace approximation of the posterior 
+\begin_inset Formula $p(\boldsymbol{f}|\mathcal{{D}},\boldsymbol{\theta})$
+\end_inset
+
+ at the maximum a-posteriori (MAP) estimate.
+ Denotes with 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+ the (unnormalized) negative log of the posterior
+\begin_inset Formula 
+\begin{equation}
+\Psi(\boldsymbol{f})=-\log p(\mathcal{D}|\boldsymbol{f},\boldsymbol{\theta})p(\boldsymbol{f})\label{eq:psi}
+\end{equation}
+
+\end_inset
+
+The Laplace approximation refers to using the Taylor expansion of 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+ at the MAP point and retaining the terms up to the second order.
+ This is equivalent to approximate the posterior with the following Gaussian
+ distribution
+\begin_inset Formula 
+\begin{equation}
+p(\boldsymbol{f}|\mathcal{{D}},\boldsymbol{\theta})=\mathcal{{N}}(\hat{\boldsymbol{f}},H^{-1})
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\hat{\boldsymbol{f}}$
+\end_inset
+
+ is the MAP estimate of the posterior and 
+\begin_inset Formula $H$
+\end_inset
+
+ is the Hessian matrix of 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+ evaluated at 
+\begin_inset Formula $\hat{\boldsymbol{f}}$
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align}
+\hat{\boldsymbol{f}} & =\arg\min_{\boldsymbol{f}}\Psi(\boldsymbol{f})\label{eq:map}\\
+H & =\frac{\partial^{2}\Psi(\boldsymbol{f})}{\partial\boldsymbol{f}\partial\boldsymbol{f}^{T}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}.
+\end{align}
+
+\end_inset
+
+Using Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:likelihood"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+),(
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:GP prior"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain the following expression for 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\Psi(\boldsymbol{f})=\sum_{i=1}^{n}\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta})+\frac{1}{2}\boldsymbol{f}^{T}K^{-1}\boldsymbol{f}+\frac{n}{2}\log2\pi+\frac{1}{2}\log|K|\label{eq:psi1}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\begin{align}
+\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta}) & =-\log p(y_{i}|f(\boldsymbol{x}_{i}),\boldsymbol{\theta})\nonumber \\
+ & =-\log\left[\Phi\left(\frac{\eta_{y_{i}}-f(\boldsymbol{x}_{i})}{\sigma_{\epsilon}}\right)-\Phi\left(\frac{\eta_{y_{i}-1}-f(\boldsymbol{x}_{i})}{\sigma_{\epsilon}}\right)\right]\label{eq:l}
+\end{align}
+
+\end_inset
+
+In Appendix A we show that the Hessian matrix is given by 
+\begin_inset Formula 
+\[
+H=\Lambda+K^{-1}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ is diagonal matrix whose 
+\begin_inset Formula $ii$
+\end_inset
+
+-elements is 
+\begin_inset Formula $\frac{\partial^{2}\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}^{2}}$
+\end_inset
+
+ given as in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:lambda_ii_1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ We further show (Appendix A) that 
+\begin_inset Formula $H$
+\end_inset
+
+ is positive define, hence the optimization problem involve in finding the
+ MAP estimate is convex and have a unique solution.
+ The resulting Gaussian approximation is given by 
+\begin_inset Formula 
+\begin{equation}
+p(\boldsymbol{f}|\mathcal{{D}},\boldsymbol{\theta})=\mathcal{{N}}(\hat{\boldsymbol{f}},(\Lambda_{\mathrm{MAP}}+K^{-1})^{-1}),\label{eq:laplace_approx_poserrior}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\Lambda_{\mathrm{MAP}}$
+\end_inset
+
+ denotes 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ at the MAP estimate.
+ The Second order Taylor expansion of 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+ at the MAP estimate is given by 
+\begin_inset Formula 
+\begin{equation}
+\hat{\Psi}(\boldsymbol{f})=\Psi(\hat{\boldsymbol{f}})+\frac{1}{2}(\boldsymbol{f}-\hat{\boldsymbol{f}})^{T}(\Lambda_{\mathrm{MAP}}+K^{-1})(\boldsymbol{f}-\hat{\boldsymbol{f}})\label{eq:laplace_approx}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Model Adaptation 
+\end_layout
+
+\begin_layout Standard
+To obtain a point estimate for 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ we must compute the evidence 
+\begin_inset Formula $p(\mathcal{{D}}|\boldsymbol{\theta})$
+\end_inset
+
+ as defined in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:evidence"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ Using (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:psi"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain
+\begin_inset Formula 
+\begin{align*}
+p(\mathcal{{D}}|\boldsymbol{\theta}) & =\int p(\mathcal{{D}}|\boldsymbol{f},\boldsymbol{\theta})p(\boldsymbol{f})d\boldsymbol{f}\\
+ & =\int\exp-\Psi(\boldsymbol{f}).
+\end{align*}
+
+\end_inset
+
+Replacing 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+ with the approximation 
+\begin_inset Formula $\hat{\Psi}(\boldsymbol{f})$
+\end_inset
+
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:laplace_approx"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain,
+\begin_inset Formula 
+\begin{align*}
+p(\mathcal{{D}}|\boldsymbol{\theta}) & \approx\int\exp-\hat{\Psi}(\boldsymbol{f})=\\
+ & =\exp\left[-\Psi(\hat{\boldsymbol{f}})\right]\int\exp\left[-\frac{1}{2}(\boldsymbol{f}-\hat{\boldsymbol{f}})^{T}(\Lambda_{\mathrm{MAP}}+K^{-1})(\boldsymbol{f}-\hat{\boldsymbol{f}})\right]d\boldsymbol{f}\\
+ & =\exp\left[-\Psi(\hat{\boldsymbol{f}})\right](2\pi)^{n/2}|\Lambda_{\mathrm{MAP}}+K^{-1}|^{-1/2}=\\
+ & =
+\end{align*}
+
+\end_inset
+
+Hence, the log evidence is given by 
+\begin_inset Formula 
+\begin{align}
+\log p(\mathcal{{D}}|\boldsymbol{\theta}) & \approx-\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})-\frac{1}{2}\boldsymbol{\hat{f}}^{T}K^{-1}\hat{\boldsymbol{f}}-\frac{1}{2}\log|K||\Lambda_{\mathrm{MAP}}+K^{-1}|+C\nonumber \\
+ & =-\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})-\frac{1}{2}\boldsymbol{\hat{f}}^{T}K^{-1}\hat{\boldsymbol{f}}-\frac{1}{2}\log|I+K\Lambda_{\mathrm{MAP}}|+C\label{eq:log-ev}
+\end{align}
+
+\end_inset
+
+The gradient of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:log-ev"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) with respect to the hyper-parameters 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ can be derived analytically (Appendix B).
+ The outline of algorithm for model adaptation is described in Table 1.
+ 
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Algorithm for model adaptation using the MAP approach with Laplace approximation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="2">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Initialization
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+choose a favorite gradient-descent optimization package.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+select the starting point 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ for the optimization package.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Looping
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+While the optimization package requests evidence/gradient evaluation at
+ 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(1) Find the MAP estimate by solving the convex optimization problem (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:map"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(2) Evaluate the 
+\series bold
+negative
+\series default
+ log-evidence (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:log-ev"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) at the MAP estimate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(3) Calculate the gradients with respect to 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ (Appendix B).
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(4) feed the evidence and gradients to the optimization package.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Exit
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Return the optimal 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ found by optimization package
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Prediction 
+\end_layout
+
+\begin_layout Standard
+At the optimal hyper-parameters we inferred, denoted as 
+\begin_inset Formula $\hat{\boldsymbol{\theta}}$
+\end_inset
+
+, let us take a test case 
+\begin_inset Formula $\boldsymbol{x}_{*}$
+\end_inset
+
+ for which the ordinal response variable 
+\begin_inset Formula $y_{*}$
+\end_inset
+
+ is unknown.
+ To predict 
+\begin_inset Formula $y_{*}$
+\end_inset
+
+ we first predict the latent variable 
+\begin_inset Formula $f_{*}\overset{\Delta}{{=}}f(\boldsymbol{x}_{*})$
+\end_inset
+
+.
+ The posterior predictive distribution 
+\begin_inset Formula $p(f_{*}|\boldsymbol{x}_{*}\mathcal{{D}},\hat{\boldsymbol{\theta}})$
+\end_inset
+
+ can be written as 
+\begin_inset Formula 
+\[
+p(f_{*}|\boldsymbol{x}_{*},\mathcal{{D}},\hat{\boldsymbol{\theta}})=\int p(f_{*}|x_{*},\boldsymbol{f})p(\boldsymbol{f}|\mathcal{{D}},\hat{\boldsymbol{\theta}})d\boldsymbol{f}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $p(\boldsymbol{f}|\mathcal{{D}},\hat{\boldsymbol{\theta}})$
+\end_inset
+
+ is the posterior approximation (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:laplace_approx_poserrior"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) and 
+\begin_inset Formula $p(f_{*}|x_{*}\boldsymbol{f})$
+\end_inset
+
+ is the prior conditional distribution of 
+\begin_inset Formula $f_{*}$
+\end_inset
+
+ given 
+\series bold
+
+\begin_inset Formula $\boldsymbol{f}$
+\end_inset
+
+
+\series default
+.
+ Since the posterior and the prior are Gaussian, the posterior predictive
+ distribution is also Gaussian
+\begin_inset Formula 
+\[
+p(f_{*}|\boldsymbol{x}_{*}\mathcal{{D}},\hat{\boldsymbol{\theta}})=\mathcal{{N}}(\mu_{x},\sigma_{x}^{2}).
+\]
+
+\end_inset
+
+Furthermore, the mean 
+\begin_inset Formula $\mu_{x}$
+\end_inset
+
+ and the variance 
+\begin_inset Formula $\sigma_{x}^{2}$
+\end_inset
+
+ satisfies 
+\begin_inset Formula 
+\begin{align}
+\mu_{x} & =\boldsymbol{k}_{*}^{T}K^{-1}\boldsymbol{\mu}_{p}\\
+\sigma_{x}^{2} & =\mathcal{{K}}(\boldsymbol{x}_{*},\boldsymbol{x}_{*})-\boldsymbol{k}_{*}^{T}(K^{-1}-K^{-1}\Sigma_{p}K^{-1})\boldsymbol{k}_{*}
+\end{align}
+
+\end_inset
+
+where 
+\begin_inset Formula $\boldsymbol{k}_{*}=[\mathcal{{K}}(\boldsymbol{x}_{1},\boldsymbol{x}_{*}),\mathcal{{K}}(\boldsymbol{x}_{2},\boldsymbol{x}_{*}),...,\mathcal{{K}}(\boldsymbol{x}_{n},\boldsymbol{x}_{*})]$
+\end_inset
+
+, and 
+\begin_inset Formula $\boldsymbol{\mu}_{p},\Sigma_{p}$
+\end_inset
+
+ are the mean vector and covariance matrix of the posterior.
+ Using (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:laplace_approx_poserrior"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) and the matrix inverse lemma we obtain
+\begin_inset Formula 
+\begin{align*}
+\mu_{x} & =\boldsymbol{k}_{*}^{T}K^{-1}\hat{\boldsymbol{f}},\\
+\sigma_{x}^{2} & =\mathcal{{K}}(\boldsymbol{x}_{*},\boldsymbol{x}_{*})-\boldsymbol{k}_{*}^{T}(K+\Lambda_{\mathrm{MAP}}^{-1})^{-1}\boldsymbol{k}_{*}.
+\end{align*}
+
+\end_inset
+
+The predictive distribution over ordinal targets 
+\begin_inset Formula $y_{x}$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\begin{align}
+p(y_{x}|\boldsymbol{x}_{*},\mathcal{D},\hat{\boldsymbol{\theta}}) & =\int p(y_{x}|\boldsymbol{x}_{*},f_{*},\hat{\boldsymbol{\theta}})p(f_{*}|\boldsymbol{x}_{*},\mathcal{{D}},\hat{\boldsymbol{\theta}})=\nonumber \\
+ & =\Phi\left(\frac{\eta_{y_{x}}-\mu_{x}}{\sqrt{\sigma_{\epsilon}^{2}+\sigma_{x}^{2}}}\right)-\Phi\left(\frac{\eta_{y_{x}-1}-\mu_{x}}{\sqrt{\sigma_{\epsilon}^{2}+\sigma_{x}^{2}}}\right).
+\end{align}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Appendix A - Hessian Matrix 
+\end_layout
+
+\begin_layout Standard
+The Hessian matrix of 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:psi1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) is given by 
+\begin_inset Formula 
+\begin{align}
+H & =\frac{\partial^{2}\Psi}{\partial\boldsymbol{f}\partial\boldsymbol{f}^{T}}=\frac{\partial}{\partial\boldsymbol{f}\partial\boldsymbol{f}^{T}}\sum_{i=1}^{n}\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta})+\frac{\partial^{2}}{\partial\boldsymbol{f}\partial\boldsymbol{f}^{T}}\frac{1}{2}\boldsymbol{f}^{T}K^{-1}\boldsymbol{f}\nonumber \\
+ & =\frac{\partial^{2}}{\partial\boldsymbol{f}\partial\boldsymbol{f}^{T}}\sum_{i=1}^{n}\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta})+K^{-1}=\Lambda+K^{-1}\label{eq:hessian}
+\end{align}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ is the Hessian matrix of 
+\begin_inset Formula $\sum_{i=1}^{n}\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta})$
+\end_inset
+
+.
+ The 
+\begin_inset Formula $ij$
+\end_inset
+
+-element of 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ is given by 
+\begin_inset Formula 
+\begin{equation}
+\Lambda_{ij}=\frac{\partial^{2}}{\partial f(\boldsymbol{x}_{i})f(\boldsymbol{x}_{j})}\sum_{i=1}^{n}\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta})=\begin{cases}
+\frac{\partial^{2}\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta})}{\partial f(\boldsymbol{x}_{i})^{2}} & i=j\\
+0 & i\neq j
+\end{cases}.\label{eq:lambda}
+\end{equation}
+
+\end_inset
+
+That is, 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ is a diagonal matrix whose 
+\begin_inset Formula $ii$
+\end_inset
+
+ element equals 
+\begin_inset Formula $\frac{\partial^{2}\ell(y_{i},f(\boldsymbol{x}_{i}),\boldsymbol{\theta})}{\partial f(\boldsymbol{x}_{i})^{2}}$
+\end_inset
+
+.
+ For better clarity we use 
+\begin_inset Formula $f_{i}=f(\boldsymbol{x}_{i})$
+\end_inset
+
+ hereinafter.
+ Using Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:l"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain, 
+\begin_inset Formula 
+\begin{align}
+\Lambda_{ii} & =\frac{\partial^{2}\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}^{2}}=\nonumber \\
+ & =-\frac{\partial^{2}}{\partial f_{i}^{2}}\log\left[\Phi\left(\frac{\eta_{y_{i}}-f_{i}}{\sigma_{\epsilon}}\right)-\Phi\left(\frac{\eta_{y_{i}-1}-f_{i}}{\sigma_{\epsilon}}\right)\right],\nonumber \\
+ & =-\frac{\partial^{2}}{\partial f_{i}^{2}}\log\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]\label{eq:lambda_ii}
+\end{align}
+
+\end_inset
+
+where 
+\begin_inset Formula $z_{1}^{i}=\frac{\eta_{y_{i}}-f_{i}}{\sigma_{\epsilon}}$
+\end_inset
+
+ and 
+\begin_inset Formula $z_{2}^{i}=\frac{\eta_{y_{i}-1}-f_{i}}{\sigma_{\epsilon}}$
+\end_inset
+
+.
+ The first derivative of 
+\begin_inset Formula $\log\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]$
+\end_inset
+
+ with respect to 
+\begin_inset Formula $f_{i}$
+\end_inset
+
+ is given by 
+\begin_inset Formula 
+\begin{align}
+\frac{\partial}{\partial f_{i}}\log\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right] & =\frac{\Phi'\left(z_{1}^{i}\right)-\Phi'\left(z_{2}^{i}\right)}{\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]}\nonumber \\
+ & =-\frac{1}{\sigma_{\varepsilon}}\frac{\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)}{\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]}\label{eq:der_1st}
+\end{align}
+
+\end_inset
+
+The second derivative with respect to 
+\begin_inset Formula $f_{i}$
+\end_inset
+
+ is given by 
+\begin_inset Formula 
+\begin{align}
+\frac{\partial^{2}}{\partial f_{i}^{2}}\log\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right] & =-\frac{1}{\sigma_{\varepsilon}}\frac{\partial}{\partial f_{i}}\frac{\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)}{\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]}\nonumber \\
+ & =-\frac{1}{\sigma_{\varepsilon}}\frac{\partial}{\partial f_{i}}\frac{h(f_{i})}{k(f_{i})}=-\frac{1}{\sigma_{\varepsilon}}\frac{h'(f_{i})k(f_{i})-h(f_{i})k'(f_{i})}{k(f_{i})^{2}}\label{eq:der_2nd}
+\end{align}
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\begin{align*}
+h(f_{i}) & =\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)\\
+h'(f_{i}) & =\frac{\partial}{\partial f_{i}}\left[\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)\right]\\
+ & =-\mathcal{{N}}(z_{1}^{i},0,1)z_{1}^{i}\frac{\partial z_{1}^{i}}{\partial f_{i}}+\mathcal{{N}}(z_{2}^{i},0,1)z_{2}^{i}\frac{\partial z_{2}^{i}}{\partial f_{i}}\\
+ & =\frac{1}{\sigma_{\varepsilon}}\left[z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)\right]\\
+k(f_{i}) & =\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\\
+k'(f_{i}) & =\mathcal{{N}}(z_{1}^{i},0,1)\frac{\partial z_{1}^{i}}{\partial f_{i}}-\mathcal{{N}}(z_{2}^{i},0,1)\frac{\partial z_{2}^{i}}{\partial f_{i}}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus we obtain,
+\begin_inset Formula 
+\begin{align}
+h'(f_{i})k(f_{i})-h(f_{i})k'(f_{i}) & =\frac{1}{\sigma_{\varepsilon}}\left[z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)\right]\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]\nonumber \\
+ & +\frac{1}{\sigma_{\varepsilon}}[\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)]^{2}
+\end{align}
+
+\end_inset
+
+and hence, 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+\frac{\partial^{2}}{\partial f_{i}^{2}}\log\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right] & =-\frac{1}{\sigma_{\varepsilon}^{2}}\left[\frac{z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\right]\nonumber \\
+ & -\frac{1}{\sigma_{\varepsilon}^{2}}\left[\frac{\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\right]^{2}\label{eq:der_2nd1}
+\end{align}
+
+\end_inset
+
+Substituting Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:der_2nd1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) in Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:lambda_ii"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain, 
+\begin_inset Formula 
+\begin{align}
+\Lambda_{ii} & =\frac{1}{\sigma_{\varepsilon}^{2}}\left[\frac{z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\right]+\nonumber \\
+ & +\frac{1}{\sigma_{\varepsilon}^{2}}\left[\frac{\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\right]^{2}\label{eq:lambda_ii_1}
+\end{align}
+
+\end_inset
+
+We further note that the first term in Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:lambda_ii_1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) is positive.
+ The constraint 
+\begin_inset Formula $\eta_{y_{i}}>\eta_{y_{i}-1}$
+\end_inset
+
+ impose 
+\begin_inset Formula $z_{1}^{i}>z_{2}^{i}$
+\end_inset
+
+ and therefore 
+\begin_inset Formula $\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)>0$
+\end_inset
+
+.
+ Additionally we can show that 
+\begin_inset Formula $z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)>0$
+\end_inset
+
+ (TBD).
+ Hence, 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ is a positive-define matrix and hence 
+\begin_inset Formula $H$
+\end_inset
+
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:hessian"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) is also positive definite (sum of positive definite matrices).
+ 
+\end_layout
+
+\begin_layout Section*
+Appendix B
+\end_layout
+
+\begin_layout Standard
+Evidence maximization is equivalent to finding the minimizer for the negative
+ log evidence which according to (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:log-ev"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) can be written as 
+\begin_inset Formula 
+\begin{equation}
+g(\boldsymbol{\theta})\overset{\Delta}{=}-\log p(\mathcal{{D}}|\boldsymbol{\theta})=\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})+\frac{1}{2}\boldsymbol{\hat{f}}^{T}K^{-1}\hat{\boldsymbol{f}}+\frac{1}{2}\log|I+K\Lambda_{\mathrm{MAP}}|.\label{eq:negative log evidence}
+\end{equation}
+
+\end_inset
+
+The hyper-parameter vector 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ include the threshold parameters 
+\begin_inset Formula $\{\eta_{1},\log\Delta_{2},...,\log\Delta_{K-1}\},$
+\end_inset
+
+ the noise variance 
+\begin_inset Formula $\log\sigma_{\epsilon}$
+\end_inset
+
+ and the kernel parameters.
+ The loss function 
+\begin_inset Formula $\ell$
+\end_inset
+
+ and the covariance matrix 
+\begin_inset Formula $K$
+\end_inset
+
+ are function of 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+, but 
+\begin_inset Formula $\hat{\boldsymbol{f}}$
+\end_inset
+
+ and therefore 
+\begin_inset Formula $\Lambda_{\mathrm{MAP}}$
+\end_inset
+
+ are also implicitly functions of 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+, since when 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ changes, the optimum of the posterior 
+\begin_inset Formula $\hat{\boldsymbol{f}}$
+\end_inset
+
+also changes.
+ Thus 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial g(\boldsymbol{\theta})}{\partial\theta_{i}}=\frac{\partial g(\boldsymbol{\theta})}{\partial\theta_{i}}|_{\mathrm{explicit}}+\sum_{i=1}^{n}\frac{\partial g(\boldsymbol{\theta})}{\partial\hat{f}_{i}}\frac{\partial\hat{f_{i}}}{\partial\theta_{j}}\label{eq:evidence gradient}
+\end{equation}
+
+\end_inset
+
+by the chain rule.
+ The explicit term is given by
+\begin_inset Formula 
+\begin{align}
+\frac{\partial g(\boldsymbol{\theta})}{\partial\theta_{j}}|_{\mathrm{explicit}} & =\frac{\partial}{\partial\theta_{j}}\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})-\frac{1}{2}\boldsymbol{\hat{f}}^{T}K^{-1}\frac{\partial K}{\partial\theta_{j}}K^{-1}\hat{\boldsymbol{f}}+\nonumber \\
+ & +\frac{1}{2}\mathrm{trace}\left[(I+K\Lambda_{\mathrm{MAP}})^{-1}\frac{\partial}{\partial\theta_{j}}K\Lambda_{\mathrm{MAP}}\right]\nonumber \\
+ & =\frac{\partial}{\partial\theta_{j}}\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})-\frac{1}{2}\boldsymbol{\hat{f}}^{T}K^{-1}\frac{\partial K}{\partial\theta_{j}}K^{-1}\hat{\boldsymbol{f}}\nonumber \\
+ & +\frac{1}{2}\mathrm{trace}\left[(\Lambda_{\mathrm{MAP}}^{-1}+K)^{-1}\frac{\partial K}{\partial\theta_{j}}\right]\label{eq:explicit}\\
+ & +\frac{1}{2}\mathrm{trace}\left[\Lambda_{\mathrm{MAP}}^{-1}(\Lambda_{\mathrm{MAP}}^{-1}+K)^{-1}K\frac{\partial}{\partial\theta_{j}}\frac{\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{2}}\right]=\nonumber \\
+\nonumber \\
+\nonumber \\
+\nonumber 
+\end{align}
+
+\end_inset
+
+where we used Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:laplace_approx"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) for the expression of 
+\begin_inset Formula $\Lambda_{\mathrm{MAP}}$
+\end_inset
+
+.
+ When evaluating the remaining term from Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:evidence gradient"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+), we utilize the fact that 
+\begin_inset Formula $\hat{\boldsymbol{f}}$
+\end_inset
+
+ is the maximum of the posterior so that 
+\begin_inset Formula $\partial\Psi(\boldsymbol{f})/\partial\boldsymbol{f=0}$
+\end_inset
+
+ for 
+\begin_inset Formula $\boldsymbol{f}=\hat{\boldsymbol{f}}$
+\end_inset
+
+ where 
+\begin_inset Formula $\Psi(\boldsymbol{f})$
+\end_inset
+
+ is defined in Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:psi1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ Thus the implicit derivatives of the first two term in Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:negative log evidence"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) vanish, leaving only 
+\begin_inset Formula 
+\begin{align}
+\frac{\partial g(\boldsymbol{\theta})}{\partial\hat{f}_{i}} & =\frac{1}{2}\frac{\partial\log|I+K\Lambda_{\mathrm{MAP}}|}{\partial\hat{f}_{i}}=\frac{1}{2}\mathrm{trace}\left[(I+K\Lambda_{\mathrm{MAP}})^{-1}K\frac{\partial\Lambda_{\mathrm{MAP}}}{\partial\hat{f}_{i}}\right]\nonumber \\
+ & =\frac{1}{2}\mathrm{trace}\left[(K^{-1}+\Lambda_{\mathrm{MAP}})^{-1}\frac{\partial\Lambda_{\mathrm{MAP}}}{\partial\hat{f}_{i}}\right]=\frac{1}{2}\left[(K^{-1}+\Lambda_{\mathrm{MAP}})^{-1}\right]_{ii}\frac{\partial^{3}\ell(y_{i}\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{3}}\label{eq:implicit_1}
+\end{align}
+
+\end_inset
+
+In order to evaluate the derivative 
+\begin_inset Formula $\partial\hat{\boldsymbol{f}}/\partial\theta_{j}$
+\end_inset
+
+, we differentiate the fixed-point equation 
+\begin_inset Formula $\hat{\boldsymbol{f}}=-K\sum_{i=1}^{n}\partial\ell(y_{i},f_{i},\boldsymbol{\theta})/\partial\boldsymbol{f}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}$
+\end_inset
+
+ (Rasmussen et al.) to obtain 
+\begin_inset Formula 
+\begin{align*}
+\frac{\partial\hat{\boldsymbol{f}}}{\partial\theta_{j}} & =-\frac{\partial K}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial\boldsymbol{f}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}-K\frac{\partial}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}\\
+ & =-\frac{\partial K}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial\boldsymbol{f}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}-K\sum_{i=1}^{n}\frac{\partial}{\partial\theta_{j}}\left[\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}\right]\\
+ & -K\underbrace{\frac{\partial}{\partial\hat{\boldsymbol{f}}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}}_{\Lambda_{\mathrm{MAP}}}\frac{\partial\hat{\boldsymbol{f}}}{\partial\theta_{j}}=-\frac{\partial K}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}\\
+ & -K\sum_{i=1}^{n}\frac{\partial}{\partial\theta_{j}}\left[\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}\right]-K\Lambda_{\mathrm{MAP}}\frac{\partial\hat{\boldsymbol{f}}}{\partial\theta_{j}}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus we obtain 
+\begin_inset Formula 
+\[
+\frac{\partial\hat{\boldsymbol{f}}}{\partial\theta_{j}}=-(I+K\Lambda_{\mathrm{MAP}})^{-1}\left\{ \frac{\partial K}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}+K\sum_{i=1}^{n}\frac{\partial}{\partial\theta_{j}}\left[\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}\right]\right\} 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+\frac{\partial\hat{\boldsymbol{f}}}{\partial\theta_{j}} & =-\frac{\partial K}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}-K\frac{\partial}{\partial\hat{\boldsymbol{f}}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}\frac{\partial\hat{\boldsymbol{f}}}{\partial\theta_{j}}\nonumber \\
+ & =-\frac{\partial K}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}-K\Lambda_{\mathrm{MAP}}\frac{\partial\hat{\boldsymbol{f}}}{\partial\theta_{j}}\nonumber \\
+ & =-(I+K\Lambda_{\mathrm{MAP}})^{-1}\frac{\partial K}{\partial\theta_{j}}\sum_{i=1}^{n}\frac{\partial\ell(y_{i},f_{i},\boldsymbol{\theta})}{\partial f_{i}}|_{\boldsymbol{f}=\hat{\boldsymbol{f}}}\label{eq:implicit_2}
+\end{align}
+
+\end_inset
+
+The desired derivatives are obtained by plugging Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:explicit"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+-
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:implicit_2"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) to Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:evidence gradient"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ We Note that the follwoing gradients are required for solving the optimization
+ problem
+\begin_inset Formula 
+\[
+\frac{\partial K}{\partial\theta_{j}},\frac{\partial}{\partial\theta_{j}}\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta}),\frac{\partial}{\partial\theta_{j}}\frac{\partial\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}},\frac{\partial}{\partial\theta_{j}}\frac{\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{2}},\frac{\partial^{3}\ell(y_{i}\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{3}}
+\]
+
+\end_inset
+
+ Using Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:lambda_ii"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) The derivative 
+\begin_inset Formula $\partial^{3}\ell(y_{i}\hat{f_{i}},\boldsymbol{\theta})/\partial f_{i}^{3}$
+\end_inset
+
+ in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:implicit_1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) becomes 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial^{3}\ell(y_{i}\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{3}}=-\frac{\partial^{3}}{\partial f_{i}^{3}}\log\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]\label{eq:d3loss_df}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $z_{1}^{i}=\frac{\eta_{y_{i}}-f_{i}}{\sigma_{\epsilon}}$
+\end_inset
+
+ and 
+\begin_inset Formula $z_{2}^{i}=\frac{\eta_{y_{i}-1}-f_{i}}{\sigma_{\epsilon}}$
+\end_inset
+
+.
+ Using the result in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:der_2nd1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial^{3}\ell(y_{i}\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{3}}=\frac{\partial}{\partial f_{i}}\frac{1}{\sigma_{\epsilon}^{2}}\left[v_{0}^{2}+v_{1}\right]=\frac{1}{\sigma_{\epsilon}^{2}}\left(2v_{0}\frac{\partial v_{0}}{\partial f_{i}}+\frac{\partial v_{1}}{\partial f_{i}}\right)\label{eq:d3loss_df_1}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\begin{equation}
+v_{p}^{i}=\frac{(z_{1}^{i})^{p}\mathcal{{N}}(z_{1}^{i},0,1)-(z_{2}^{i})^{p}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\label{eq:v_p}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Using Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:der_2nd1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) The term 
+\begin_inset Formula $\partial v_{0}/\partial f_{i}$
+\end_inset
+
+ can be expressed as 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial v_{0}^{i}}{\partial f_{i}}=\frac{1}{\sigma_{\epsilon}}[(v_{0}^{i})^{2}+v_{1}^{i}]\label{eq:dv0_df}
+\end{equation}
+
+\end_inset
+
+ The term 
+\begin_inset Formula $\partial v_{1}/\partial f_{i}$
+\end_inset
+
+ can be expressed as 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial v_{1}^{i}}{\partial f_{i}}=\frac{h'(f_{i})k(f_{i})-h(f_{i})k'(f_{i})}{k(f_{i})^{2}}\label{eq:dv_df}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\begin{align*}
+h(f_{i}) & =z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)\\
+h'(f_{i}) & =\mathcal{{N}}(z_{1}^{i},0,1)\frac{\partial z_{1}^{i}}{\partial f_{i}}-(z_{1}^{i})^{2}\mathcal{{N}}(z_{1}^{i},0,1)\frac{\partial z_{1}^{i}}{\partial f_{i}}-\mathcal{{N}}(z_{2}^{i},0,1)\frac{\partial z_{2}^{i}}{\partial f_{i}}+(z_{2}^{i})^{2}\mathcal{{N}}(z_{2}^{i},0,1)\frac{\partial z_{2}^{i}}{\partial f_{i}}\\
+ & =-\frac{1}{\sigma_{\epsilon}}\mathcal{{N}}(z_{1}^{i},0,1)+\frac{1}{\sigma_{\epsilon}}(z_{1}^{i})^{2}\mathcal{{N}}(z_{1}^{i},0,1)+\frac{1}{\sigma_{\epsilon}}\mathcal{{N}}(z_{2}^{i},0,1)-\frac{1}{\sigma_{\epsilon}}(z_{2}^{i})^{2}\mathcal{{N}}(z_{2}^{i},0,1)\\
+ & =-\frac{1}{\sigma_{\epsilon}}\left[\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)\right]+\frac{1}{\sigma_{\epsilon}}\left[(z_{1}^{i})^{2}\mathcal{{N}}(z_{1}^{i},0,1)-(z_{2}^{i})^{2}\mathcal{{N}}(z_{2}^{i},0,1)\right]\\
+k(f_{i}) & =\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\\
+k'(f_{i}) & =\mathcal{{N}}(z_{1}^{i},0,1)\frac{\partial z_{1}^{i}}{\partial f_{i}}-\mathcal{{N}}(z_{2}^{i},0,1)\frac{\partial z_{2}^{i}}{\partial f_{i}}\\
+ & =-\frac{1}{\sigma_{\epsilon}}\left[\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)\right]
+\end{align*}
+
+\end_inset
+
+Thus, 
+\begin_inset Formula 
+\begin{align}
+\frac{\partial v_{1}}{\partial f_{i}} & =-\frac{1}{\sigma_{\epsilon}}\frac{\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}+\frac{1}{\sigma_{\epsilon}}\frac{(z_{1}^{i})^{2}\mathcal{{N}}(z_{1}^{i},0,1)-(z_{2}^{i})^{2}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\nonumber \\
+ & +\frac{1}{\sigma_{\epsilon}}\frac{z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\frac{\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\nonumber \\
+ & =\frac{1}{\sigma_{\epsilon}}\left[-v_{0}^{i}+v_{2}^{i}+v_{1}^{i}v_{0}^{i}\right]\label{eq:dv1_df_1}
+\end{align}
+
+\end_inset
+
+Substituting Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dv0_df"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+,
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dv1_df_1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) to Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:d3loss_df_1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial^{3}\ell(y_{i}\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{3}}=\frac{1}{\sigma_{\epsilon}^{2}}\left(2v_{0}^{i}\frac{\partial v_{0}^{i}}{\partial f_{i}}+\frac{\partial v_{1}^{i}}{\partial f_{i}}\right)=\frac{1}{\sigma_{\epsilon}^{3}}[2(v_{0}^{i})^{3}+3v_{0}^{i}v_{1}^{i}+v_{2}^{i}-v_{0}^{i}]
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The derivative of 
+\begin_inset Formula $\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})$
+\end_inset
+
+ with respect to 
+\series bold
+
+\begin_inset Formula $\theta_{j}$
+\end_inset
+
+
+\series default
+ is given by
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\theta_{j}}\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})=-\frac{\partial}{\partial\theta_{j}}\sum_{i=1}^{n}\log\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]=-\sum_{i=1}^{n}\frac{\mathcal{{N}}(z_{1}^{i},0,1)\frac{\partial z_{1}^{i}}{\partial\theta_{j}}-\mathcal{{N}}(z_{2}^{i},0,1)\frac{\partial z_{2}^{i}}{\partial\theta_{j}}}{\left[\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)\right]}\label{eq:dl_dtheta}
+\end{equation}
+
+\end_inset
+
+The derivative of 
+\begin_inset Formula $\partial\ell(y_{i}\hat{f_{i}},\boldsymbol{\theta})/\partial f_{i}$
+\end_inset
+
+ and 
+\begin_inset Formula $\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})/\partial f_{i}^{2}$
+\end_inset
+
+ with respect to 
+\begin_inset Formula $\theta_{j}$
+\end_inset
+
+ is given by (using Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:v_p"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+)
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\theta_{j}}\frac{\partial\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}}=\frac{\partial}{\partial\theta_{j}}\frac{1}{\sigma_{\epsilon}}v_{0}^{i}\label{eq:dl_df_dtheata}
+\end{equation}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\theta_{j}}\frac{\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{2}}=\frac{\partial}{\partial\theta_{j}}\frac{1}{\sigma_{\epsilon}^{2}}[(v_{0}^{i})^{2}+v_{1}^{i}]=\frac{1}{\sigma_{\epsilon}^{2}}\left(2v_{0}^{i}\frac{\partial v_{0}^{i}}{\partial\theta_{j}}+\frac{\partial v_{1}^{i}}{\partial\theta_{j}}\right)\label{eq:d2l_df2_dtheta}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+The derivatives with respect to 
+\begin_inset Formula $\sigma_{\epsilon}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For 
+\begin_inset Formula $\theta_{i}=\sigma_{\epsilon}$
+\end_inset
+
+ we obtain 
+\begin_inset Formula 
+\[
+\frac{\partial z_{1}^{i}}{\partial\sigma_{\epsilon}}=-\frac{\eta_{y_{i}}-f_{i}}{\sigma_{\epsilon}^{2}}=-\frac{z_{1}^{i}}{\sigma_{\epsilon}},\quad\frac{\partial z_{2}^{i}}{\partial\sigma_{\epsilon}}=-\frac{z_{2}^{i}}{\sigma_{\epsilon}}
+\]
+
+\end_inset
+
+The derivative of 
+\begin_inset Formula $\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})$
+\end_inset
+
+ with respect to 
+\begin_inset Formula $\sigma_{\epsilon}$
+\end_inset
+
+ is given by
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\sigma_{\epsilon}}\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})=\frac{1}{\sigma_{\epsilon}}\sum_{i=1}^{n}v_{1}^{i}\label{eq:dl_dsigma}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To compute the derivativein Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dl_df_dtheata"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+),(
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:d2l_df2_dtheta"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) with respect to 
+\begin_inset Formula $\theta_{j}=\sigma_{\epsilon}$
+\end_inset
+
+ we first compute the derivatives 
+\begin_inset Formula $\partial v_{0}/\partial\sigma_{\epsilon}$
+\end_inset
+
+ and 
+\begin_inset Formula $\partial v_{1}/\partial\sigma_{\epsilon}$
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align}
+\frac{\partial v_{0}}{\partial\sigma_{\epsilon}} & =\frac{1}{\sigma_{\epsilon}}\frac{\left[(z_{1}^{i})^{2}\mathcal{{N}}(z_{1}^{i},0,1)-(z_{2}^{i})^{2}\mathcal{{N}}(z_{2}^{i},0,1)\right]}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\nonumber \\
+ & =+\frac{1}{\sigma_{\epsilon}}\frac{\mathcal{{N}}(z_{1}^{i},0,1)-\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\frac{z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\frac{\partial}{\partial\theta_{j}}\frac{\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{2}}\nonumber \\
+ & =\frac{1}{\sigma_{\epsilon}}(v_{2}^{i}+v_{0}^{i}v_{1}^{i})\label{eq:dv0_dsigma}
+\end{align}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align*}
+\frac{\partial v_{1}}{\partial\sigma_{\epsilon}} & =-\frac{1}{\sigma_{\epsilon}}\frac{z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\\
+ & +\frac{1}{\sigma_{\epsilon}}\frac{(z_{1}^{i})^{3}\mathcal{{N}}(z_{1}^{i},0,1)-(z_{2}^{i})^{3}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\\
+ & +\frac{1}{\sigma_{\epsilon}}\left(\frac{z_{1}^{i}\mathcal{{N}}(z_{1}^{i},0,1)-z_{2}^{i}\mathcal{{N}}(z_{2}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}\right)^{2}\\
+ & =\frac{1}{\sigma_{\epsilon}}[-v_{1}^{i}+v_{2}^{i}+(v_{1}^{i})^{2}]
+\end{align*}
+
+\end_inset
+
+Thus we obtain, 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\sigma_{\epsilon}}\frac{\partial\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}}=\frac{1}{\sigma_{\epsilon}^{2}}(v_{2}^{i}+v_{0}^{i}v_{1}^{i})\label{eq:dl_df_dsigma}
+\end{equation}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\sigma_{\epsilon}}\frac{\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{2}}=\frac{1}{\sigma_{\epsilon}^{3}}[2v_{0}^{i}v_{2}^{i}+2(v_{0}^{i})^{2}v_{1}^{i}-v_{1}^{i}+v_{3}^{i}+(v_{1}^{i})^{2}]\label{eq:d2l_df2_dsigma}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+The derivatives with respect to 
+\begin_inset Formula $\eta_{1}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We note that
+\begin_inset Formula 
+\begin{equation}
+\eta_{i}=\begin{cases}
+-\infty & i=0\\
+\eta_{1} & i=1\\
+\eta_{1}+\sum_{l=1}^{i}\Delta_{l} & i\in[2,K-1]\\
+\infty & i=K
+\end{cases}\label{eq:eta}
+\end{equation}
+
+\end_inset
+
+For 
+\begin_inset Formula $\theta_{j}=\eta_{1}$
+\end_inset
+
+ we obtain,
+\begin_inset Formula 
+\[
+\frac{\partial z_{1}^{i}}{\partial\eta_{1}}=\frac{\partial}{\partial\eta_{1}}\frac{\eta_{y_{i}}-f_{i}}{\sigma_{\epsilon}}=\begin{cases}
+\frac{1}{\sigma_{\epsilon}} & y_{i}=[1,K-1]\\
+0 & y_{i}=K
+\end{cases}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\frac{\partial z_{2}^{i}}{\partial\eta_{1}}=\frac{\partial}{\partial\eta_{1}}\frac{\eta_{y_{i}-1}-f_{i}}{\sigma_{\epsilon}}=\begin{cases}
+0 & y_{i}=1\\
+\frac{1}{\sigma_{\epsilon}} & y_{i}=[2,K]
+\end{cases}
+\]
+
+\end_inset
+
+We note however that
+\begin_inset Formula 
+\[
+\mathcal{{N}}(z_{1}^{i},0,1)\frac{\partial z_{1}^{i}}{\partial f_{i}}=\frac{1}{\sigma_{\epsilon}}\mathcal{{N}}(z_{1}^{i},0,1)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\mathcal{{N}}(z_{2}^{i},0,1)\frac{\partial z_{2}^{i}}{\partial f_{i}}=\frac{1}{\sigma_{\epsilon}}\mathcal{{N}}(z_{2}^{i},0,1)
+\]
+
+\end_inset
+
+The derivative of 
+\begin_inset Formula $\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})$
+\end_inset
+
+ with respect to 
+\begin_inset Formula $\eta_{1}$
+\end_inset
+
+ is given by (using Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dl_dtheta"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\eta_{1}}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})=-\frac{1}{\sigma_{\epsilon}}v_{0}^{i}\label{eq:dl_deta1}
+\end{equation}
+
+\end_inset
+
+To compute the derivativein Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dl_df_dtheata"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+),(
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:d2l_df2_dtheta"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) with respect to 
+\begin_inset Formula $\theta_{j}=\eta_{1}$
+\end_inset
+
+ we first compute the derivatives 
+\begin_inset Formula $\partial v_{0}/\partial\eta_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $\partial v_{1}/\partial\eta_{1}$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\frac{\partial v_{0}^{i}}{\partial\eta_{1}}=-\frac{1}{\sigma_{\epsilon}}[(v_{0}^{i})^{2}+v_{1}^{i}]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\partial v_{1}^{i}}{\partial\eta_{1}}=-\frac{1}{\sigma_{\epsilon}}(-v_{0}^{i}+v_{2}^{i}+v_{1}^{i}v_{0}^{i})
+\]
+
+\end_inset
+
+Thus we obtain, 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\eta_{1}}\frac{\partial\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}}=-\frac{1}{\sigma_{\epsilon}^{2}}[(v_{0})^{2}+v_{1}^{i}]\label{eq:dl_df_deta1}
+\end{equation}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial}{\partial\eta_{1}}\frac{\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{2}}=-\frac{1}{\sigma_{\epsilon}^{3}}\left[2(v_{0}^{i})^{3}+3v_{0}^{i}v_{1}-v_{0}^{i}+v_{2}^{i}\right]\label{eq:d2l_df2_deta1}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+The derivatives with respect to 
+\begin_inset Formula $\Delta_{l}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Using Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:eta"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) we obtain
+\begin_inset Formula 
+\[
+\frac{\partial z_{1}^{i}}{\partial\Delta_{l}}=\begin{cases}
+0 & y_{i}\leq l\\
+\frac{1}{\sigma_{\epsilon}} & \mathrm{else}
+\end{cases},\quad l=2,...,K-1
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\partial z_{2}^{i}}{\partial\Delta_{l}}=\begin{cases}
+0 & y_{i}-1\leq l\\
+\frac{1}{\sigma_{\epsilon}} & \mathrm{else}
+\end{cases},\quad l=2,...,K-1
+\]
+
+\end_inset
+
+The derivative of 
+\begin_inset Formula $\sum_{i=1}^{n}\ell(y_{i},\hat{f}_{i},\boldsymbol{\theta})$
+\end_inset
+
+ with respect to 
+\begin_inset Formula $\Delta_{l}$
+\end_inset
+
+ is given by (using Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dl_dtheta"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) 
+\begin_inset Formula 
+\[
+\frac{\partial}{\partial\Delta_{l}}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})=\begin{cases}
+0 & y_{i}<l\\
+-\frac{1}{\sigma_{\epsilon}}s_{0}^{i} & y_{i}=l\\
+-\frac{1}{\sigma_{\epsilon}}v_{0}^{i} & y_{i}>l
+\end{cases},\quad l=2,...,K-1
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula 
+\begin{equation}
+s_{p}=\frac{(z_{1}^{i})^{p}\mathcal{{N}}(z_{1}^{i},0,1)}{\Phi\left(z_{1}^{i}\right)-\Phi\left(z_{2}^{i}\right)}
+\end{equation}
+
+\end_inset
+
+To compute the derivativein Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dl_df_dtheata"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+),(
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:d2l_df2_dtheta"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+) with respect to 
+\begin_inset Formula $\theta_{j}=\eta_{1}$
+\end_inset
+
+ we first compute the derivatives 
+\begin_inset Formula $\partial v_{0}^{i}/\partial\eta_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $\partial v_{1}^{i}/\partial\eta_{1}$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\frac{\partial v_{0}^{i}}{\partial\Delta_{l}}=\begin{cases}
+0 & y_{i}<l\\
+-\frac{1}{\sigma_{\epsilon}}[s_{1}^{i}+v_{0}^{i}s_{0}^{i}] & y_{i}=l\\
+-\frac{1}{\sigma_{\epsilon}}[(v_{0}^{i})^{2}+v_{1}^{i}] & y_{i}>l
+\end{cases},\quad l=2,...,K-1
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\partial v_{1}^{i}}{\partial\Delta_{l}}=\begin{cases}
+0 & y_{i}<l\\
+-\frac{1}{\sigma_{\epsilon}}(-s_{0}^{i}+s_{2}^{i}+v_{1}^{i}s_{0}^{i}) & y_{i}=l\\
+-\frac{1}{\sigma_{\epsilon}}(-v_{0}^{i}+v_{2}^{i}+v_{1}^{i}v_{0}^{i}) & y_{i}>l
+\end{cases},\quad l=2,...,K-1
+\]
+
+\end_inset
+
+Thus we obtain,
+\begin_inset Formula 
+\[
+\frac{\partial}{\partial\Delta_{l}}\frac{\partial\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}}=\begin{cases}
+0 & y_{i}<l\\
+-\frac{1}{\sigma_{\epsilon}^{2}}[v_{0}^{i}s_{0}^{i}+s_{1}^{i}] & y_{i}=l\\
+-\frac{1}{\sigma_{\epsilon}^{2}}[(v_{0}^{i})^{2}+v_{1}^{i}] & y_{i}>l
+\end{cases},\quad l=2,...,K-1
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\frac{\partial}{\partial\Delta_{l}}\frac{\partial^{2}\ell(y_{i},\hat{f_{i}},\boldsymbol{\theta})}{\partial f_{i}^{2}}=\begin{cases}
+0 & y_{i}<l\\
+-\frac{1}{\sigma_{\epsilon}^{3}}\left[2(v_{0}^{i})^{2}s_{0}^{i}+2v_{0}^{i}s_{1}^{i}-s_{0}^{i}+s_{2}^{i}+v_{1}^{i}s_{0}^{i}\right] & y_{i}=l\\
+-\frac{1}{\sigma_{\epsilon}^{3}}\left[2(v_{0}^{i})^{3}+3v_{0}^{i}v_{1}^{i}-v_{0}^{i}+v_{2}^{i}\right] & y_{i}>l
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-1"
+
+\end_inset
+
+Chu, Wei, Zoubin Ghahramani, and Christopher KI Williams.
+ "Gaussian processes for ordinal regression." Journal of machine learning
+ research 6.7 (2005).
+ 
+\end_layout
+
+\end_body
+\end_document
