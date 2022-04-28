@@ -6,7 +6,6 @@ import GPy
 from sklearn.preprocessing import LabelEncoder
 from gpy_models.ordinal_reg.ordinal_likelihood import Ordinal
 from gpy_models.ordinal_reg.gp_ordinal_regression import GPOrdinalRegression
-from gpy_models.kernels.histogram_intersection_kernel import HiK
 from gpy_models.kernels.chi_square_kernel import Chi2
 logging.getLogger().setLevel('INFO')
 
@@ -132,9 +131,6 @@ class GpOrdinalModelTrainer:
                                 name=kern_name)
             if fix_var:
                 kern.variance.fix()
-        elif kern_func == 'hik':
-            logging.info("Create HiK kernel. dims = {}.".format(nb_dims))
-            kern = HiK(nb_dims, active_dims=active_dims, name=kern_name)
         elif kern_func == 'chi2':
             gamma = params.get('gamma', 1)
             variance = params.get('variance', 1)
